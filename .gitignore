@@ -1,4 +1,6 @@
 .vercel
+
+.env
 # compiled output
 /node_modules
 
