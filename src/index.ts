@@ -10,19 +10,17 @@ const port = process.env.PORT || 3000;
 AppDataSource.initialize()
   .then(() => {
     console.log("Data Source has been initialized!");
-    console.log(process.env.DB_NAME)
   })
   .catch((err) => {
     console.error("Error during Data Source initialization:", err);
-    console.log(process.env.DB_NAME)
   });
 
 app.use(express.json());
 app.get("/", (req, res) => {
-  
+  console.log(process.env.DB_NAME)
   return res.json({
     "message": "Welcome the Auth Api Home page",
-    "data": process.env.DB_NAME,
+    "data": null,
     "status": res.statusCode,
 
   })
