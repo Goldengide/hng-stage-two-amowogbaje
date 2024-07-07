@@ -19,10 +19,10 @@ AppDataSource.initialize()
 
 app.use(express.json());
 app.get("/", (req, res) => {
-  console.log(process.env.DB_NAME)
+  
   return res.json({
     "message": "Welcome the Auth Api Home page",
-    "data": null,
+    "data": process.env.DB_NAME,
     "status": res.statusCode,
 
   })
