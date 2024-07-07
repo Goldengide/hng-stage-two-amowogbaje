@@ -10,6 +10,7 @@ const port = process.env.PORT || 3000;
 AppDataSource.initialize()
   .then(() => {
     console.log("Data Source has been initialized!");
+    console.log(process.env.DB_NAME)
   })
   .catch((err) => {
     console.error("Error during Data Source initialization:", err);
