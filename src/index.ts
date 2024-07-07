@@ -13,6 +13,7 @@ AppDataSource.initialize()
   })
   .catch((err) => {
     console.error("Error during Data Source initialization:", err);
+    console.log(process.env.DB_NAME)
   });
 
 app.use(express.json());
