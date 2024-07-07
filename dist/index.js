@@ -10,6 +10,7 @@ const auth_1 = __importDefault(require("./routes/auth"));
 require("dotenv/config");
 const app = (0, express_1.default)();
 const port = process.env.PORT || 3000;
+console.log(process.env.DB_DATABASE);
 data_source_1.AppDataSource.initialize()
     .then(() => {
     console.log("Data Source has been initialized!");
@@ -22,7 +23,7 @@ app.get("/", (req, res) => {
     console.log(process.env.DB_NAME);
     return res.json({
         "message": "Welcome the Auth Api Home page",
-        "data": null,
+        "data": process.env.DB_DATABASE,
         "status": res.statusCode,
     });
 });
