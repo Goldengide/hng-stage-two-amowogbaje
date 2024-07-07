@@ -7,7 +7,8 @@
       }
     ],
     "routes": [
-      { "src": "/api/hello", "dest": "/dist/index.js" },
+      { "src": "/auth/login", "dest": "/dist/index.js" },
+      { "src": "/auth/register", "dest": "/dist/index.js" },
       { "src": "/", "dest": "/dist/index.js" }
     ]
   }
