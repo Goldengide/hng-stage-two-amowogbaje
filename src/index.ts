@@ -2,10 +2,11 @@ import "reflect-metadata";
 import express from "express";
 import { AppDataSource } from "./data-source";
 import authRoutes from "./routes/auth";
+import 'dotenv/config';
 
 const app = express();
 const port = process.env.PORT || 3000;
-
+console.log(process.env.DB_NAME)
 AppDataSource.initialize()
   .then(() => {
     console.log("Data Source has been initialized!");
