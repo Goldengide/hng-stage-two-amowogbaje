@@ -12,13 +12,13 @@ const port = process.env.PORT || 3000;
 createConnection({
     type: "postgres",
   port: 5432,
-  // url: process.env.DB_URL,s
+  // url: process.env.DB_URL,
 
   host: process.env.DB_HOST,
   username: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
-  // ssl: true,
+  ssl: true,
 
   synchronize: true,
   logging: false,
