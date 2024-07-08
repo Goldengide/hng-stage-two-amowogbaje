@@ -28,6 +28,16 @@ export class User {
   phone!: string;
 
   @ManyToMany(() => Organisation, organisation => organisation.users, { cascade: true })
-  @JoinTable()
+  @JoinTable({
+    name: 'user_organisations', // Custom join table name
+    joinColumn: {
+        name: 'userId',
+        referencedColumnName: 'userId'
+    },
+    inverseJoinColumn: {
+        name: 'organisationId',
+        referencedColumnName: 'orgId'
+    }
+})
   organisations!: Organisation[];
 }

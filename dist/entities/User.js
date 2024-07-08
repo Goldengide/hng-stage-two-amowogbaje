@@ -46,7 +46,17 @@ __decorate([
 ], User.prototype, "phone", void 0);
 __decorate([
     (0, typeorm_1.ManyToMany)(() => Organisation_1.Organisation, organisation => organisation.users, { cascade: true }),
-    (0, typeorm_1.JoinTable)(),
+    (0, typeorm_1.JoinTable)({
+        name: 'user_organisations', // Custom join table name
+        joinColumn: {
+            name: 'userId',
+            referencedColumnName: 'userId'
+        },
+        inverseJoinColumn: {
+            name: 'organisationId',
+            referencedColumnName: 'orgId'
+        }
+    }),
     __metadata("design:type", Array)
 ], User.prototype, "organisations", void 0);
 exports.User = User = __decorate([
