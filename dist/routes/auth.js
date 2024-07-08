@@ -64,12 +64,13 @@ router.post('/register', (req, res) => __awaiter(void 0, void 0, void 0, functio
             password: hashedPassword,
             phone,
         });
-        yield userRepository.save(user);
         const organisation = organisationRepository.create({
             orgId,
             name: `${firstName}'s Organisation`,
             description: `${firstName}'s Organisation created during registration`,
         });
+        user.organisations = [organisation];
+        yield userRepository.save(user);
         yield organisationRepository.save(organisation);
         const accessToken = jsonwebtoken_1.default.sign({ userId: user.userId }, process.env.JWT_SECRET || 'default_secret', { expiresIn: '1h' });
         return res.status(201).json({

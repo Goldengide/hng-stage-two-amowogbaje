@@ -19,18 +19,18 @@ const router = (0, express_1.Router)();
 router.get('/users/:id', auth_1.authenticateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const { id } = req.params;
-    const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.userId;
+    const authenticatedUserId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.userId;
     try {
         const userRepository = (0, typeorm_1.getRepository)(User_1.User);
         const organisationRepository = (0, typeorm_1.getRepository)(Organisation_1.Organisation);
-        const user = yield userRepository.findOne({ where: { userId }, relations: ["organisations"] });
+        const user = yield userRepository.findOne({ where: { userId: id }, relations: ["organisations"] });
         if (!user) {
             return res.status(404).json({
                 status: 'error',
                 message: 'User not found',
             });
         }
-        if (user.userId !== id && !user.organisations.some(org => org.users.some(u => u.userId === userId))) {
+        if (user.userId !== authenticatedUserId && !user.organisations.some(org => org.users.some(u => u.userId === authenticatedUserId))) {
             return res.status(403).json({
                 status: 'error',
                 message: 'Unauthorized access',
@@ -69,18 +69,15 @@ router.get('/organisations', auth_1.authenticateToken, (req, res) => __awaiter(v
     try {
         const organisationRepository = (0, typeorm_1.getRepository)(Organisation_1.Organisation);
         const organisations = yield organisationRepository.createQueryBuilder("organisation")
-            .leftJoinAndSelect("organisation.users", "user")
-            .where("user.userId = :userId", { userId })
+            .leftJoin('organisation.users', 'user')
+            .where('user.userId = :userId', { userId })
+            .select(['organisation.orgId', 'organisation.name', 'organisation.description'])
             .getMany();
         const responseData = {
             status: 'success',
             message: 'Organisations retrieved successfully',
             data: {
-                organisations: organisations.map(org => ({
-                    orgId: org.orgId,
-                    name: org.name,
-                    description: org.description,
-                })),
+                organisations: organisations,
             },
         };
         return res.status(200).json(responseData);

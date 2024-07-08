@@ -59,13 +59,17 @@ router.post('/register', async (req, res) => {
             password: hashedPassword,
             phone,
         });
-        await userRepository.save(user);
+        
 
         const organisation = organisationRepository.create({
             orgId,
             name: `${firstName}'s Organisation`,
             description: `${firstName}'s Organisation created during registration`,
         });
+
+        user.organisations = [organisation];
+
+        await userRepository.save(user);
         await organisationRepository.save(organisation);
 
         const accessToken = jwt.sign({ userId: user.userId }, process.env.JWT_SECRET || 'default_secret', { expiresIn: '1h' });

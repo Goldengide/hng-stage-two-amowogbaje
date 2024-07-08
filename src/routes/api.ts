@@ -1,4 +1,4 @@
-import { Router, Request, Response  } from "express";
+import { Router, Request, Response } from "express";
 import { getRepository } from "typeorm";
 import { Organisation } from "../entities/Organisation";
 import { User } from "../entities/User";
@@ -8,13 +8,13 @@ import { validate, ValidationError } from "class-validator";
 const router = Router();
 router.get('/users/:id', authenticateToken, async (req: Request, res: Response) => {
     const { id } = req.params;
-    const userId = req.user?.userId;
+    const authenticatedUserId = req.user?.userId;
 
     try {
         const userRepository = getRepository(User);
         const organisationRepository = getRepository(Organisation);
 
-        const user = await userRepository.findOne({ where: { userId }, relations: ["organisations"] });
+        const user = await userRepository.findOne({ where: { userId: id }, relations: ["organisations"] });
         if (!user) {
             return res.status(404).json({
                 status: 'error',
@@ -22,7 +22,7 @@ router.get('/users/:id', authenticateToken, async (req: Request, res: Response) 
             });
         }
 
-        if (user.userId !== id && !user.organisations.some(org => org.users.some(u => u.userId === userId))) {
+        if (user.userId !== authenticatedUserId && !user.organisations.some(org => org.users.some(u => u.userId === authenticatedUserId))) {
             return res.status(403).json({
                 status: 'error',
                 message: 'Unauthorized access',
@@ -64,24 +64,21 @@ router.get('/organisations', authenticateToken, async (req: Request, res: Respon
         const organisationRepository = getRepository(Organisation);
 
         const organisations = await organisationRepository.createQueryBuilder("organisation")
-            .leftJoinAndSelect("organisation.users", "user")
-            .where("user.userId = :userId", { userId })
+            .leftJoin('organisation.users', 'user')
+            .where('user.userId = :userId', { userId })
+            .select(['organisation.orgId', 'organisation.name', 'organisation.description'])
             .getMany();
 
         const responseData = {
             status: 'success',
             message: 'Organisations retrieved successfully',
             data: {
-                organisations: organisations.map(org => ({
-                    orgId: org.orgId,
-                    name: org.name,
-                    description: org.description,
-                })),
+                organisations: organisations,
             },
         };
 
         return res.status(200).json(responseData);
-       
+
     } catch (error) {
         if (error instanceof Error) {
             return res.status(500).json({
@@ -141,19 +138,19 @@ router.get('/organisations/:orgId', authenticateToken, async (req: Request, res:
 
 router.post('/organisations', authenticateToken, async (req: Request, res: Response) => {
     const { name, description } = req.body;
-    const userId = req.user?.userId; 
-    
+    const userId = req.user?.userId;
+
 
     const newOrganisation = new Organisation();
     newOrganisation.name = name;
     newOrganisation.description = description;
 
-    
 
 
-    try{
+
+    try {
         const validationErrors: ValidationError[] = await validate(newOrganisation, { skipMissingProperties: true });
-        
+
 
         if (validationErrors.length > 0) {
             const errors = validationErrors.map(error => ({
@@ -174,7 +171,7 @@ router.post('/organisations', authenticateToken, async (req: Request, res: Respo
         const organisation = organisationRepository.create({
             name,
             description,
-            users: [{ userId }] 
+            users: [{ userId }]
         });
 
         await organisationRepository.save(organisation);
@@ -213,7 +210,7 @@ router.get('/organisations/:orgId/users', authenticateToken, async (req: Request
         });
     }
 
-    try{
+    try {
         const organisationRepository = getRepository(Organisation);
         const userRepository = getRepository(User);
 
