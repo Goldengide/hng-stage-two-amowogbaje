@@ -17,7 +17,7 @@
     },
     {
       "src": "/api/organisations",
-      "dest": "/dist/routes/api.js"
+      "dest": "/dist/index.js"
     },
     {
       "src": "/api/users/:id",
