@@ -15,6 +15,7 @@ const Organisation_1 = require("../entities/Organisation");
 const User_1 = require("../entities/User");
 const auth_1 = require("../utils/auth");
 const class_validator_1 = require("class-validator");
+const helper_1 = require("../utils/helper");
 const router = (0, express_1.Router)();
 router.get('/users/:id', auth_1.authenticateToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
@@ -159,10 +160,11 @@ router.post('/organisations', auth_1.authenticateToken, (req, res) => __awaiter(
             });
         }
         const organisationRepository = (0, typeorm_1.getRepository)(Organisation_1.Organisation);
+        const orgId = (0, helper_1.generateUniqueOrgId)();
         const organisation = organisationRepository.create({
+            orgId,
             name,
-            description,
-            users: [{ userId }]
+            description
         });
         yield organisationRepository.save(organisation);
         const responseData = {
@@ -201,8 +203,7 @@ router.get('/organisations/:orgId/users', auth_1.authenticateToken, (req, res) =
         const organisationRepository = (0, typeorm_1.getRepository)(Organisation_1.Organisation);
         const userRepository = (0, typeorm_1.getRepository)(User_1.User);
         const organisation = yield organisationRepository.findOne({
-            where: { orgId },
-            relations: ["users"]
+            where: { orgId }
         });
         if (!organisation) {
             return res.status(404).json({
@@ -217,7 +218,13 @@ router.get('/organisations/:orgId/users', auth_1.authenticateToken, (req, res) =
                 message: 'User not found',
             });
         }
-        organisation.users = [...organisation.users, user];
+        if (organisation.users.some(u => u.userId === userId)) {
+            return res.status(409).json({
+                status: 'error',
+                message: 'User already belongs to this organisation',
+            });
+        }
+        organisation.users.push(user);
         yield organisationRepository.save(organisation);
         return res.status(200).json({
             status: 'success',

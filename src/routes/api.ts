@@ -4,6 +4,7 @@ import { Organisation } from "../entities/Organisation";
 import { User } from "../entities/User";
 import { authenticateToken } from "../utils/auth";
 import { validate, ValidationError } from "class-validator";
+import { generateUniqueOrgId } from "../utils/helper";
 
 const router = Router();
 router.get('/users/:id', authenticateToken, async (req: Request, res: Response) => {
@@ -167,11 +168,12 @@ router.post('/organisations', authenticateToken, async (req: Request, res: Respo
         }
 
         const organisationRepository = getRepository(Organisation);
+        const orgId = generateUniqueOrgId();
 
         const organisation = organisationRepository.create({
+            orgId,
             name,
-            description,
-            users: [{ userId }]
+            description
         });
 
         await organisationRepository.save(organisation);
@@ -215,8 +217,7 @@ router.get('/organisations/:orgId/users', authenticateToken, async (req: Request
         const userRepository = getRepository(User);
 
         const organisation = await organisationRepository.findOne({
-            where: { orgId },
-            relations: ["users"]
+            where: { orgId }
         });
         if (!organisation) {
             return res.status(404).json({
@@ -233,7 +234,14 @@ router.get('/organisations/:orgId/users', authenticateToken, async (req: Request
             });
         }
 
-        organisation.users = [...organisation.users, user];
+        if (organisation.users.some(u => u.userId === userId)) {
+            return res.status(409).json({
+                status: 'error',
+                message: 'User already belongs to this organisation',
+            });
+        }
+
+        organisation.users.push(user);
         await organisationRepository.save(organisation);
 
         return res.status(200).json({
