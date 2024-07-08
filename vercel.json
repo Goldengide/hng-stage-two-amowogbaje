@@ -20,7 +20,7 @@
       "dest": "/dist/index.js"
     },
     {
-      "src": "/user/:id",
+      "src": "/users/:id",
       "dest": "/dist/index.js"
     },
     {
