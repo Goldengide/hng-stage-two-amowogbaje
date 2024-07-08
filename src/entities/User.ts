@@ -1,4 +1,3 @@
-// src/entities/User.ts
 import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable, Unique } from "typeorm";
 import { IsEmail, Length } from "class-validator";
 import { Organisation } from "./Organisation";

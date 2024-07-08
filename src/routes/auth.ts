@@ -1,88 +1,159 @@
-import { Router } from "express";
-import { getRepository } from "typeorm";
-import bcrypt from "bcrypt";
+import { Router } from 'express';
+import { getRepository } from 'typeorm';
+import { User } from '../entities/User';
+import { Organisation } from '../entities/Organisation';
+import bcrypt from 'bcryptjs';
 import jwt from "jsonwebtoken";
-import { User } from "../entities/User";
-import { Organisation } from "../entities/Organisation";
+import { generateUniqueUserId } from '../utils/helper';
 
 const router = Router();
 
-// Registration endpoint
-router.post("/register", async (req, res) => {
-    const { firstName, lastName, email, password, phone } = req.body;
-    
+router.post('/register', async (req, res) => {
+    const {firstName, lastName, email, password, phone } = req.body;
+
+    const errors = [];
+    if (!firstName) {
+        errors.push({ field: 'firstName', message: 'First name is required' });
+    }
+    if (!lastName) {
+        errors.push({ field: 'lastName', message: 'Last name is required' });
+    }
+    if (!email) {
+        errors.push({ field: 'email', message: 'Email is required' });
+    }
+    if (!password) {
+        errors.push({ field: 'password', message: 'Password is required' });
+    }
+
+    if (errors.length > 0) {
+        return res.status(400).json({
+            status: 'Bad request',
+            message: 'Registration unsuccessful',
+            statusCode: 400,
+            errors: errors,
+        });
+    }
+
     try {
         const userRepository = getRepository(User);
         const organisationRepository = getRepository(Organisation);
 
-        // Check if user already exists
         const existingUser = await userRepository.findOne({ where: { email } });
         if (existingUser) {
-            return res.status(400).json({ message: "User already exists" });
+            return res.status(409).json({
+                status: 'error',
+                message: 'User already exists',
+            });
         }
 
-        // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Create new user
-        const newUser = userRepository.create({
+        const userId = generateUniqueUserId()
+        const orgId = generateUniqueUserId()
+
+        const user = userRepository.create({
+            userId,
             firstName,
             lastName,
             email,
             password: hashedPassword,
             phone,
         });
+        await userRepository.save(user);
 
-        // Save user to the database
-        await userRepository.save(newUser);
-
-        // Create new organisation
-        const newOrganisation = organisationRepository.create({
+        const organisation = organisationRepository.create({
+            orgId,
             name: `${firstName}'s Organisation`,
-            users: [newUser],
+            description: `${firstName}'s Organisation created during registration`,
         });
+        await organisationRepository.save(organisation);
 
-        // Save organisation to the database
-        await organisationRepository.save(newOrganisation);
+        const accessToken = jwt.sign({ userId: user.userId }, process.env.JWT_SECRET || 'default_secret', { expiresIn: '1h' });
 
-        return res.status(201).json({ message: "User registered successfully" });
-    } catch (err) {
-        if (err instanceof Error) {
-            return res.status(500).json({ message: err.message });
+        
+        return res.status(201).json({
+            status: 'success',
+            message: 'Registration successful',
+            data: {
+                accessToken,
+                user: {
+                    userId: user.userId,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email,
+                    phone: user.phone,
+                    organisation
+                }
+            }
+        });
+    } catch (error) {
+        if (error instanceof Error) {
+            return res.status(500).json({
+                message: 'Server error',
+                error: error.message,
+            });
         }
-        return res.status(500).json({ message: "Unknown error occurred" });
+        return res.status(500).json({
+            message: 'Unknown server error',
+        });
     }
 });
 
-// Login endpoint
-router.post("/login", async (req, res) => {
+router.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
     try {
         const userRepository = getRepository(User);
-        
-        // Find user by email
-        const user = await userRepository.findOne({ where: { email }, relations: ["organisations"] });
+
+        const user = await userRepository.findOne({ where: { email } });
         if (!user) {
-            return res.status(400).json({ message: "Invalid email or password" });
+            return res.status(401).json({
+                status: 'error',
+                message: 'Authentication failed',
+                statusCode: 401,
+            });
         }
 
-        // Compare password
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-        if (!isPasswordValid) {
-            return res.status(400).json({ message: "Invalid email or password" });
+        const passwordMatch = await bcrypt.compare(password, user.password);
+        if (!passwordMatch) {
+            return res.status(401).json({
+                status: 'error',
+                message: 'Authentication failed',
+                statusCode: 401,
+            });
         }
 
-        // Generate JWT token
-        const token = jwt.sign({ userId: user.userId }, process.env.JWT_SECRET!, { expiresIn: "1h" });
+        const accessToken = jwt.sign({ userId: user.userId }, process.env.JWT_SECRET || 'default_secret', { expiresIn: '1h' });
 
-        return res.status(200).json({ token, user });
-    } catch (err) {
-        if (err instanceof Error) {
-            return res.status(500).json({ message: err.message });
+        return res.status(200).json({
+            status: 'success',
+            message: 'Login successful',
+            data: {
+                accessToken,
+                user: {
+                    userId: user.userId,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email,
+                    phone: user.phone,
+                }
+            }
+        });
+    } catch (error) {
+        if (error instanceof Error) {
+            return res.status(500).json({
+                message: 'Server error',
+                error: error.message,
+            });
         }
-        return res.status(500).json({ message: "Unknown error occurred" });
+        return res.status(500).json({
+            message: 'Unknown server error',
+        });
     }
 });
 
+
+
+
+ 
 export default router;

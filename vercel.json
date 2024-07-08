@@ -1,15 +1,39 @@
 {
-    "version": 2,
-    "builds": [
-      {
-        "src": "dist/index.js",
-        "use": "@vercel/node"
-      }
-    ],
-    "routes": [
-      { "src": "/auth/login", "dest": "/dist/index.js" },
-      { "src": "/auth/register", "dest": "/dist/index.js" },
-      { "src": "/", "dest": "/dist/index.js" }
-    ]
-  }
-  
+  "version": 2,
+  "builds": [
+    {
+      "src": "dist/index.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/organisations/:orgId/users",
+      "dest": "/dist/index.js"
+    },
+    {
+      "src": "/organisations/:orgId",
+      "dest": "/dist/index.js"
+    },
+    {
+      "src": "/organisations",
+      "dest": "/dist/index.js"
+    },
+    {
+      "src": "/user/:id",
+      "dest": "/dist/index.js"
+    },
+    {
+      "src": "/auth/login",
+      "dest": "/dist/index.js"
+    },
+    {
+      "src": "/auth/register",
+      "dest": "/dist/index.js"
+    },
+    {
+      "src": "/",
+      "dest": "/dist/index.js"
+    }
+  ]
+}

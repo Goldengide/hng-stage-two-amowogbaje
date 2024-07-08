@@ -1,32 +1,50 @@
 import "reflect-metadata";
 import express from "express";
-import { AppDataSource } from "./data-source";
 import authRoutes from "./routes/auth";
+import apiRoutes from "./routes/api";
 import 'dotenv/config';
+import { createConnection } from "typeorm";
+import { User } from "./entities/User";
+import { Organisation } from "./entities/Organisation";
 
 const app = express();
 const port = process.env.PORT || 3000;
-console.log(process.env.DB_DATABASE)
-AppDataSource.initialize()
-  .then(() => {
-    console.log("Data Source has been initialized!");
-  })
-  .catch((err) => {
-    console.error("Error during Data Source initialization:", err);
+createConnection({
+    type: "postgres",
+  port: 5432,
+  // url: process.env.DB_URL,s
+
+  host: process.env.DB_HOST,
+  username: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE,
+  // ssl: true,
+
+  synchronize: true,
+  logging: false,
+  entities: [User, Organisation],
+  migrations: [],
+  subscribers: [],
+})
+.then(() => {
+  console.log("Database connection established successfully!");
+
+  app.use(express.json());
+  app.get("/", (req, res) => {
+    return res.json({
+      "message": "Welcome to the Auth API Home page",
+      "data": process.env.DB_DATABASE,
+      "status": res.statusCode,
+    });
   });
 
-app.use(express.json());
-app.get("/", (req, res) => {
-  console.log(process.env.DB_NAME)
-  return res.json({
-    "message": "Welcome the Auth Api Home page",
-    "data": process.env.DB_DATABASE,
-    "status": res.statusCode,
+  app.use("/auth", authRoutes);
+  app.use("/api", apiRoutes);
 
-  })
-});
-app.use("/auth", authRoutes);
-
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+  });
+})
+.catch((error) => {
+  console.error("Error during database connection:", error);
 });
