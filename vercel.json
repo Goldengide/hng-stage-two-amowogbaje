@@ -7,33 +7,9 @@
     }
   ],
   "routes": [
-    {
-      "src": "/api/organisations/:orgId/users",
-      "dest": "/dist/index.js"
-    },
-    {
-      "src": "/api/organisations/:orgId",
-      "dest": "/dist/index.js"
-    },
-    {
-      "src": "/api/organisations",
-      "dest": "/dist/index.js"
-    },
-    {
-      "src": "/api/users/:id",
-      "dest": "/dist/index.js"
-    },
-    {
-      "src": "/auth/login",
-      "dest": "/dist/index.js"
-    },
-    {
-      "src": "/auth/register",
-      "dest": "/dist/index.js"
-    },
-    {
-      "src": "/",
-      "dest": "/dist/index.js"
-    }
-  ]
+      {
+        "src": "/(.*)",
+        "dest": "src/app.ts"
+      }
+    ]
 }
