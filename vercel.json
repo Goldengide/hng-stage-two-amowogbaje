@@ -8,19 +8,19 @@
   ],
   "routes": [
     {
-      "src": "/organisations/:orgId/users",
+      "src": "/api/organisations/:orgId/users",
       "dest": "/dist/index.js"
     },
     {
-      "src": "/organisations/:orgId",
+      "src": "/api/organisations/:orgId",
       "dest": "/dist/index.js"
     },
     {
-      "src": "/organisations",
+      "src": "/api/organisations",
       "dest": "/dist/index.js"
     },
     {
-      "src": "/users/:id",
+      "src": "/api/users/:id",
       "dest": "/dist/index.js"
     },
     {
