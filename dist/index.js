@@ -41,7 +41,7 @@ const port = process.env.PORT || 3000;
     app.use("/auth", auth_1.default);
     app.use("/api", api_1.default);
     app.listen(port, () => {
-        console.log(`Server is running on port ${port}`);
+        console.log(`Server is up on port ${port}`);
     });
 })
     .catch((error) => {
