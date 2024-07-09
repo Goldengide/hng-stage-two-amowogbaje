@@ -9,7 +9,10 @@ import { Organisation } from "./entities/Organisation";
 
 const app = express();
 const port = process.env.PORT || 3000;
-
+let sslStatus = true
+if(process.env.DB_PASSWORD !== "verceldb") {
+    sslStatus = false
+  }
 const connectionPromise: Promise<Connection> = createConnection({
   type: "postgres",
   port: 5432,
@@ -17,7 +20,7 @@ const connectionPromise: Promise<Connection> = createConnection({
   username: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
-  ssl: process.env.DB_SSL === 'true',
+  ssl: sslStatus,
   synchronize: true,
   logging: false,
   entities: [User, Organisation],
