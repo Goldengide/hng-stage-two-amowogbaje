@@ -10,7 +10,7 @@ import { Organisation } from "./entities/Organisation";
 const app = express();
 const port = process.env.PORT || 3000;
 let sslStatus = true
-if(process.env.DB_PASSWORD !== "verceldb") {
+if(process.env.DB_DATABASE !== "verceldb") {
   sslStatus = false
 }
 createConnection({
@@ -22,7 +22,7 @@ createConnection({
   username: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
-  ssl: true,
+  ssl: sslStatus,
 
   synchronize: true,
   logging: false,
