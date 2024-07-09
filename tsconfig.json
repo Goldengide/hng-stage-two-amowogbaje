@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES6",
-    "types": ["node", "express"],
+    "types": ["node", "express", "jest"],
     "typeRoots": ["./src/types", "./node_modules/@types"] ,
     "module": "commonjs",
     "outDir": "./dist",
@@ -11,7 +11,7 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },
-  "include": ["src", "src/types/**/*.d.ts"],
+  "include": ["src", "src/types/**/*.d.ts", "tests/**/*.ts"],
   "exclude": ["node_modules"]
 }
 

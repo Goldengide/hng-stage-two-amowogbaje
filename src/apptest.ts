@@ -3,33 +3,29 @@ import express from "express";
 import authRoutes from "./routes/auth";
 import apiRoutes from "./routes/api";
 import 'dotenv/config';
-import { createConnection } from "typeorm";
+import { createConnection, Connection } from "typeorm";
 import { User } from "./entities/User";
 import { Organisation } from "./entities/Organisation";
 
 const app = express();
 const port = process.env.PORT || 3000;
-let sslStatus = true
-if(process.env.DB_PASSWORD !== "verceldb") {
-  sslStatus = false
-}
-createConnection({
+
+const connectionPromise: Promise<Connection> = createConnection({
   type: "postgres",
   port: 5432,
-  // url: process.env.DB_URL,
-
   host: process.env.DB_HOST,
   username: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
-  ssl: sslStatus,
-
+  ssl: process.env.DB_SSL === 'true',
   synchronize: true,
   logging: false,
   entities: [User, Organisation],
   migrations: [],
   subscribers: [],
-})
+});
+
+connectionPromise
   .then(() => {
     console.log("Database connection established successfully!");
 
@@ -46,11 +42,11 @@ createConnection({
     app.use("/api", apiRoutes);
 
     app.listen(port, () => {
-      console.log(`Server is up on port ${port}`);
+      console.log(`Server is running on port ${port}`);
     });
   })
   .catch((error) => {
     console.error("Error during database connection:", error);
   });
 
-export default app
+export { app, connectionPromise };
