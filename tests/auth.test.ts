@@ -1,5 +1,5 @@
 import request from "supertest";
-import { app, connectionPromise } from "../src/apptest";
+import { app, connectionPromise } from "../src/test-server";
 import { getRepository } from "typeorm";
 import { User } from "../src/entities/User";
 import { Organisation } from "../src/entities/Organisation";
