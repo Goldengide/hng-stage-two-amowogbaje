@@ -20,7 +20,7 @@ const connectionPromise: Promise<Connection> = createConnection({
   username: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
-  ssl: sslStatus,
+  ssl: true,
   synchronize: true,
   logging: false,
   entities: [User, Organisation],

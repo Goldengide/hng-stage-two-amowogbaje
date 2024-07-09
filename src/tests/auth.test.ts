@@ -1,8 +1,8 @@
 import request from "supertest";
-import { app, connectionPromise } from "../src/test-server";
+import { app, connectionPromise } from "../test-server";
 import { getRepository } from "typeorm";
-import { User } from "../src/entities/User";
-import { Organisation } from "../src/entities/Organisation";
+import { User } from "../entities/User";
+import { Organisation } from "../entities/Organisation";
 
 let server: any;
 

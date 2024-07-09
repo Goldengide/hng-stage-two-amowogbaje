@@ -40,7 +40,7 @@ createConnection({
     });
 
     app.use("/auth", authRoutes);
-    // app.use("/api", apiRoutes);
+    app.use("/api", apiRoutes);
 
     app.listen(port, () => {
       console.log(`Server is up on port ${port}`);
