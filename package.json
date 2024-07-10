@@ -2,11 +2,13 @@
   "name": "hng-stage-two-amowogbaje",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
-"scripts": {
-    "start": "npx ts-node-dev src/app.ts",
+  "main": "dist/app.js",
+  "scripts": {
+    "start": "node dist/app.js",
     "dev": "ts-node-dev src/app.ts",
-    "test":"jest --detectOpenHandles"
+    "test": "jest --detectOpenHandles",
+    "build": "tsc",
+    "prebuild": "tsc"
   },
   "keywords": [],
   "author": "",
@@ -32,7 +34,9 @@
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
+    "@types/jest": "^29.5.12",
     "@types/uuid": "^10.0.0",
-    "sequelize-cli": "^6.6.2"
+    "sequelize-cli": "^6.6.2",
+    "ts-node": "^10.9.1"
   }
 }
